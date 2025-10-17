@@ -2,7 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,6 +25,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 const roomSchema = z
   .object({
@@ -34,22 +43,15 @@ const roomSchema = z
     interviewType: z.enum(["general", "technical"], {
       errorMap: () => ({ message: "Select an interview type" }),
     }),
-    idealLength: z.number().min(3).max(5),
-    startDate: z
-      .string()
-      .min(1, "Start date is required")
-      .refine((value) => !Number.isNaN(Date.parse(value)), {
-        message: "Invalid start date",
-      }),
-    endDate: z
-      .string()
-      .min(1, "End date is required")
-      .refine((value) => !Number.isNaN(Date.parse(value)), {
-        message: "Invalid end date",
-      }),
+    idealLength: z
+      .number()
+      .min(3, "Minimum length is 3 minutes")
+      .max(5, "Maximum length is 5 minutes"),
+    startDate: z.date({ error: "Start date is required" }),
+    endDate: z.date({ error: "End date is required" }),
   })
   .refine(
-    (data) => new Date(data.endDate) >= new Date(data.startDate),
+    (data) => data.endDate >= data.startDate,
     {
       path: ["endDate"],
       message: "End date must be on or after the start date",
@@ -67,8 +69,8 @@ export function CreateRoomForm({
   const [interviewType, setInterviewType] =
     useState<RoomFormValues["interviewType"] | "">("");
   const [idealLength, setIdealLength] = useState<number>(4);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof RoomFormValues, string>>
   >({});
@@ -81,8 +83,8 @@ export function CreateRoomForm({
     setJobPosting("");
     setInterviewType("");
     setIdealLength(4);
-    setStartDate("");
-    setEndDate("");
+    setStartDate(undefined);
+    setEndDate(undefined);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -128,12 +130,17 @@ export function CreateRoomForm({
       hr_id: user.id,
       job_posting: validation.data.jobPosting,
       interview_type: validation.data.interviewType,
-      start_date: validation.data.startDate,
-      end_date: validation.data.endDate,
+      start_date: format(validation.data.startDate, "yyyy-MM-dd"),
+      end_date: format(validation.data.endDate, "yyyy-MM-dd"),
       room_code: generateRoomCode(),
       ai_config: {
         title: validation.data.title,
         ideal_length: validation.data.idealLength,
+        prompt: buildInterviewerPrompt({
+          interviewType: validation.data.interviewType,
+          jobPosting: validation.data.jobPosting,
+          title: validation.data.title,
+        }),
       },
     });
 
@@ -217,10 +224,10 @@ export function CreateRoomForm({
             </div>
 
             <div className="space-y-2">
-              <Label>Ideal interview length: {idealLength} hr</Label>
+              <Label>Ideal interview length: {idealLength} min</Label>
               <Slider
                 value={[idealLength]}
-                onValueChange={(value) => setIdealLength(value[0] ?? 3)}
+                onValueChange={(value) => setIdealLength(value[0] ?? 4)}
                 min={3}
                 max={5}
                 step={1}
@@ -234,13 +241,30 @@ export function CreateRoomForm({
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="start-date">Start date</Label>
-                <Input
-                  id="start-date"
-                  type="date"
-                  value={startDate}
-                  onChange={(event) => setStartDate(event.target.value)}
-                />
+                <Label>Start date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !startDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, "PPP") : "Pick a start date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={setStartDate}
+                      disabled={(date) => (endDate ? date > endDate : false)}
+                    />
+                  </PopoverContent>
+                </Popover>
                 {fieldErrors.startDate && (
                   <p className="text-sm text-red-500">
                     {fieldErrors.startDate}
@@ -249,13 +273,30 @@ export function CreateRoomForm({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="end-date">End date</Label>
-                <Input
-                  id="end-date"
-                  type="date"
-                  value={endDate}
-                  onChange={(event) => setEndDate(event.target.value)}
-                />
+                <Label>End date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !endDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, "PPP") : "Pick an end date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={setEndDate}
+                      disabled={(date) => (startDate ? date < startDate : false)}
+                    />
+                  </PopoverContent>
+                </Popover>
                 {fieldErrors.endDate && (
                   <p className="text-sm text-red-500">
                     {fieldErrors.endDate}
@@ -283,4 +324,22 @@ export function CreateRoomForm({
 
 function generateRoomCode() {
   return crypto.randomUUID().split("-")[0].toUpperCase();
+}
+
+function buildInterviewerPrompt({
+  interviewType,
+  jobPosting,
+  title,
+}: {
+  interviewType: RoomFormValues["interviewType"];
+  jobPosting: string;
+  title: string;
+}) {
+  const base = `You are Prepple's AI interviewer hosting the "${title}" session. Use the following job posting for context: ${jobPosting}`;
+
+  if (interviewType === "technical") {
+    return `${base}. Focus on assessing technical proficiency, problem-solving, and practical application of skills. Ask scenario-based questions and brief coding logic discussions when relevant, and probe for depth of understanding.`;
+  }
+
+  return `${base}. Focus on behavioral insights, communication style, teamwork, and cultural fit. Ask open-ended questions that let the candidate describe experiences and motivations.`;
 }
