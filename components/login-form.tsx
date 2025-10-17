@@ -40,7 +40,16 @@ export function LoginForm({
       });
       if (error) throw error;
       // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/admin");
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      const isHr = user?.user_metadata?.is_hr;
+      
+      if (isHr) {
+        router.push("/admin");
+      } else {
+        router.push("/client");
+      }
+
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
