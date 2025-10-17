@@ -15,11 +15,50 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { z } from "zod";
+
+const passwordSchema = z
+  .string()
+  .min(8, "Password must be at least 8 characters")
+  .regex(/[A-Z]/, "Password must include at least one uppercase letter")
+  .regex(/[a-z]/, "Password must include at least one lowercase letter")
+  .regex(/\d/, "Password must include at least one number")
+  .regex(/[^A-Za-z0-9]/, "Password must include at least one special character");
+
+const signUpSchemaBase = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(1, "Full name is required")
+    .max(50, "Full name must be 50 characters or less"),
+  email: z.string().email("Enter a valid email address"),
+  password: passwordSchema,
+  repeatPassword: z.string(),
+});
+
+type SignUpFormValues = z.infer<typeof signUpSchemaBase>;
+
+const signUpSchema = signUpSchemaBase.superRefine(
+  (data: SignUpFormValues, ctx: z.RefinementCtx) => {
+    if (data.password !== data.repeatPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["repeatPassword"],
+        message: "Passwords do not match",
+      });
+    }
+  }
+);
+
+interface SignUpFormProps extends React.ComponentPropsWithoutRef<"div"> {
+  signUpType?: "asAdmin" | "asClient";
+}
 
 export function SignUpForm({
   className,
+  signUpType,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: SignUpFormProps) {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
@@ -30,23 +69,33 @@ export function SignUpForm({
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
-    if (password !== repeatPassword) {
-      setError("Passwords do not match");
+    const validation = signUpSchema.safeParse({
+      fullName,
+      email,
+      password,
+      repeatPassword,
+    });
+
+    if (!validation.success) {
       setIsLoading(false);
+      setError(validation.error.issues[0]?.message ?? "Invalid form input");
       return;
     }
 
+    const { fullName: parsedFullName, email: parsedEmail, password: parsedPassword } =
+      validation.data;
+    const supabase = createClient();
+
     try {
       const { error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: parsedEmail,
+        password: parsedPassword,
         options: {
           emailRedirectTo: `${window.location.origin}/protected`,
-          data: { full_name: fullName }
+          data: { full_name: parsedFullName, is_hr: signUpType === "asAdmin" },
         },
       });
       if (error) throw error;
