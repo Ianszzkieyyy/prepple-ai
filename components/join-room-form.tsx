@@ -90,7 +90,7 @@ export function JoinRoomForm({
         return;
       }
 
-      router.push(`/interview/${roomId}?candidateId=${candidateId}`);
+      router.push(`/client/interview/${roomId}/live?candidateId=${candidateId}`);
     } catch (unknownError) {
       setError(
         unknownError instanceof Error
