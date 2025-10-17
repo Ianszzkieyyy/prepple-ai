@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { JoinRoomCode } from "@/components/join-room-code";
 import Link from "next/link";
 
 export default async function Home() {
@@ -30,6 +31,7 @@ export default async function Home() {
     <div>
       <h1>Protected Client Page</h1>
       <p>You are currently logged in as {userProfile?.name}</p>
+      <JoinRoomCode />
     </div>
   )
 }

@@ -128,6 +128,7 @@ export function CreateRoomForm({
 
     const { error } = await supabase.from("rooms").insert({
       hr_id: user.id,
+      title: validation.data.title,
       job_posting: validation.data.jobPosting,
       interview_type: validation.data.interviewType,
       start_date: format(validation.data.startDate, "yyyy-MM-dd"),
