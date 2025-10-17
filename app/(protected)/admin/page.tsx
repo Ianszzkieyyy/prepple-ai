@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { CreateRoomForm } from "@/components/create-room-form";
 import Link from "next/link";
 
 export default async function Home() {
@@ -20,7 +21,7 @@ export default async function Home() {
     return (
       <div>
         <h1>You are currently logged in as a Client</h1>
-        <Link href="/client">Go to Client Dashboard</Link>
+        <Link href="/client">Go to Client Page</Link>
       </div>
     );
   }
@@ -29,6 +30,7 @@ export default async function Home() {
     <div>
       <h1>Protected Admin Page</h1>
       <p>You are currently logged in as {userProfile?.name}</p>
+      <CreateRoomForm />
     </div>
   )
 }
