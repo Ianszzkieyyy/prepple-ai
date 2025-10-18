@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { AccessToken, type AccessTokenOptions, type VideoGrant } from 'livekit-server-sdk';
 import { RoomConfiguration } from '@livekit/protocol';
 import { createClient } from '@/lib/supabase/server';
+import { generateSignedResume } from '@/lib/generateSignedResume';
 
 // NOTE: you are expected to define the following environment variables in `.env.local`:
 const API_KEY = process.env.LIVEKIT_API_KEY;
@@ -53,9 +54,21 @@ export async function POST(req: Request) {
       .single()
     if (candidateError) throw new Error('Error fetching candidate data');
 
+    if (!candidateData?.resume_url) {
+      throw new Error('Candidate resume not found');
+    }
+
+    // const signedResumeUrl = await convertResumeUrlToSignedUrl(
+    //   supabase,
+    //   candidateData.resume_url,
+    // );
+
     const agentMetadata = JSON.stringify({
       room: roomData,
-      candidate: candidateData,
+      candidate: {
+        ...candidateData,
+        resume_url: await generateSignedResume(candidateData.resume_url),
+      },
     });
 
 
