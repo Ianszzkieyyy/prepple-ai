@@ -39,7 +39,7 @@ const roomSchema = z
       .string()
       .trim()
       .min(1, "Job posting is required")
-      .max(1000, "Maximum 1000 characters"),
+      .max(3000, "Maximum 3000 characters"),
     interviewType: z.enum(["general", "technical"], {
       errorMap: () => ({ message: "Select an interview type" }),
     }),
@@ -49,6 +49,11 @@ const roomSchema = z
       .max(5, "Maximum length is 5 minutes"),
     startDate: z.date({ error: "Start date is required" }),
     endDate: z.date({ error: "End date is required" }),
+    aiInstructions: z
+      .string()
+      .trim()
+      .max(200, "Maximum 200 characters")
+      .optional(),
   })
   .refine(
     (data) => data.endDate >= data.startDate,
@@ -71,6 +76,7 @@ export function CreateRoomForm({
   const [idealLength, setIdealLength] = useState<number>(4);
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
+  const [aiInstructions, setAiInstructions] = useState("");
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof RoomFormValues, string>>
   >({});
@@ -85,6 +91,7 @@ export function CreateRoomForm({
     setIdealLength(4);
     setStartDate(undefined);
     setEndDate(undefined);
+    setAiInstructions("");
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -101,6 +108,7 @@ export function CreateRoomForm({
       idealLength,
       startDate,
       endDate,
+      aiInstructions,
     });
 
     if (!validation.success) {
@@ -128,21 +136,17 @@ export function CreateRoomForm({
 
     const { error } = await supabase.from("rooms").insert({
       hr_id: user.id,
-      title: validation.data.title,
+      room_title: validation.data.title,
       job_posting: validation.data.jobPosting,
       interview_type: validation.data.interviewType,
       start_date: format(validation.data.startDate, "yyyy-MM-dd"),
       end_date: format(validation.data.endDate, "yyyy-MM-dd"),
+      ideal_length: validation.data.idealLength,
       room_code: generateRoomCode(),
-      ai_config: {
-        title: validation.data.title,
-        ideal_length: validation.data.idealLength,
-        prompt: buildInterviewerPrompt({
-          interviewType: validation.data.interviewType,
-          jobPosting: validation.data.jobPosting,
-          title: validation.data.title,
-        }),
-      },
+      ai_instruction:
+        validation.data.aiInstructions?.trim()
+          ? validation.data.aiInstructions.trim()
+          : null,
     });
 
     if (error) {
@@ -186,7 +190,7 @@ export function CreateRoomForm({
                 placeholder="Describe the role, expectations, and key responsibilities..."
                 value={jobPosting}
                 onChange={(event) => setJobPosting(event.target.value)}
-                maxLength={1000}
+                maxLength={3000}
                 rows={6}
               />
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -197,7 +201,27 @@ export function CreateRoomForm({
                 ) : (
                   <span />
                 )}
-                <span>{jobPosting.length}/1000</span>
+                <span>{jobPosting.length}/3000</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ai-instructions">Additional AI instructions</Label>
+              <Textarea
+                id="ai-instructions"
+                placeholder="Add optional guidance for the AI interviewer (e.g. tone, topics to stress)..."
+                value={aiInstructions}
+                onChange={(event) => setAiInstructions(event.target.value)}
+                maxLength={200}
+                rows={3}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                {fieldErrors.aiInstructions ? (
+                  <span className="text-red-500">{fieldErrors.aiInstructions}</span>
+                ) : (
+                  <span />
+                )}
+                <span>{aiInstructions.length}/200</span>
               </div>
             </div>
 
@@ -325,22 +349,4 @@ export function CreateRoomForm({
 
 function generateRoomCode() {
   return crypto.randomUUID().split("-")[0].toUpperCase();
-}
-
-function buildInterviewerPrompt({
-  interviewType,
-  jobPosting,
-  title,
-}: {
-  interviewType: RoomFormValues["interviewType"];
-  jobPosting: string;
-  title: string;
-}) {
-  const base = `You are Prepple's AI interviewer hosting the "${title}" session. Use the following job posting for context: ${jobPosting}`;
-
-  if (interviewType === "technical") {
-    return `${base}. Focus on assessing technical proficiency, problem-solving, and practical application of skills. Ask scenario-based questions and brief coding logic discussions when relevant, and probe for depth of understanding.`;
-  }
-
-  return `${base}. Focus on behavioral insights, communication style, teamwork, and cultural fit. Ask open-ended questions that let the candidate describe experiences and motivations.`;
 }

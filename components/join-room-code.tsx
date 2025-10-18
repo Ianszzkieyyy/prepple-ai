@@ -49,7 +49,7 @@ export function JoinRoomCode({
     }
 
     // Redirect to the interview room page, e.g., /interview/[roomId]
-    router.push(`/client/interview/${data.id}`);
+    router.push(`/client/interview/${data.id}/join`);
   };
 
   return (
