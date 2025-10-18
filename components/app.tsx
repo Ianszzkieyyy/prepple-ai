@@ -16,13 +16,15 @@ const MotionSessionView = motion.create(SessionView);
 
 interface AppProps {
   appConfig: AppConfig;
+  roomId?: string;
+  candidateId?: string;
 }
 
-export function App({ appConfig }: AppProps) {
+export function App({ appConfig, roomId, candidateId }: AppProps) {
   const room = useMemo(() => new Room(), []);
   const [sessionStarted, setSessionStarted] = useState(false);
   const { refreshConnectionDetails, existingOrRefreshConnectionDetails } =
-    useConnectionDetails(appConfig);
+    useConnectionDetails(appConfig, roomId, candidateId);
 
   useEffect(() => {
     const onDisconnected = () => {

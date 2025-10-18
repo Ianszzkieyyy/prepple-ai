@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { AccessToken, type AccessTokenOptions, type VideoGrant } from 'livekit-server-sdk';
 import { RoomConfiguration } from '@livekit/protocol';
+import { createClient } from '@/lib/supabase/server';
 
 // NOTE: you are expected to define the following environment variables in `.env.local`:
 const API_KEY = process.env.LIVEKIT_API_KEY;
@@ -31,7 +32,32 @@ export async function POST(req: Request) {
 
     // Parse agent configuration from request body
     const body = await req.json();
-    const agentName: string = body?.room_config?.agents?.[0]?.agent_name;
+    const { roomId, candidateId } = body
+
+    if (!roomId || !candidateId) {
+      throw new Error('Room ID and Candidate ID are required');
+    }
+
+    const supabase = await createClient();
+    const { data: roomData, error: roomError } = await supabase
+      .from('rooms')
+      .select('room_title, interview_type, job_posting, ai_instruction, ideal_length')
+      .eq('id', roomId)
+      .single();
+    if (roomError) throw new Error('Error fetching room data');
+
+    const { data: candidateData, error: candidateError } = await supabase
+      .from('candidates')
+      .select('resume_url, users(name)')
+      .eq('id', candidateId)
+      .single()
+    if (candidateError) throw new Error('Error fetching candidate data');
+
+    const agentMetadata = JSON.stringify({
+      room: roomData,
+      candidate: candidateData,
+    });
+
 
     // Generate participant token
     const participantName = 'user';
@@ -41,7 +67,7 @@ export async function POST(req: Request) {
     const participantToken = await createParticipantToken(
       { identity: participantIdentity, name: participantName },
       roomName,
-      agentName
+      agentMetadata
     );
 
     // Return connection details
@@ -66,7 +92,7 @@ export async function POST(req: Request) {
 function createParticipantToken(
   userInfo: AccessTokenOptions,
   roomName: string,
-  agentName?: string
+  agentMetadata?: string
 ): Promise<string> {
   const at = new AccessToken(API_KEY, API_SECRET, {
     ...userInfo,
@@ -81,9 +107,9 @@ function createParticipantToken(
   };
   at.addGrant(grant);
 
-  if (agentName) {
+  if (agentMetadata) {
     at.roomConfig = new RoomConfiguration({
-      agents: [{ agentName }],
+      agents: [{ metadata: agentMetadata }],
     });
   }
 
