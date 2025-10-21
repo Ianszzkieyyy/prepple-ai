@@ -42,14 +42,14 @@ export async function POST(req: Request) {
     const supabase = await createClient();
     const { data: roomData, error: roomError } = await supabase
       .from('rooms')
-      .select('room_title, interview_type, job_posting, ai_instruction, ideal_length')
+      .select('id, room_title, interview_type, job_posting, ai_instruction, ideal_length')
       .eq('id', roomId)
       .single();
     if (roomError) throw new Error('Error fetching room data');
 
     const { data: candidateData, error: candidateError } = await supabase
       .from('candidates')
-      .select('resume_url, users(name)')
+      .select('id, resume_url, users(name)')
       .eq('id', candidateId)
       .single()
     if (candidateError) throw new Error('Error fetching candidate data');
