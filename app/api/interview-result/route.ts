@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { generateReport } from '@/lib/generateReport'
 
 const AGENT_API_KEY = process.env.AGENT_API_KEY
 
@@ -14,6 +15,8 @@ export async function POST(req: Request) {
         if (!roomId || !candidateId || !sessionHistory || !usageMetrics) {
             return new NextResponse('Missing required fields', { status: 400 })
         }
+
+        const report = await generateReport(roomId, candidateId, sessionHistory, usageMetrics);
 
     } catch (error) {
         console.error("Error process interview result:", error)
