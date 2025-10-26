@@ -50,11 +50,9 @@ export async function POST(req: Request) {
 
 
     } catch (error) {
-        console.error("Error process interview result:", error)
-        if (error instanceof Error) {
-            return NextResponse.json({ error: error.message }, { status: 500 })
-        }
-        return NextResponse.json({ error: "An unknown error occurred" }, { status: 500 })
+        console.error('Error processing interview result:', error)
+        const message = error instanceof Error ? error.message : 'An unknown error occurred'
+        return NextResponse.json({ error: message }, { status: 500 })
     }
 
 }

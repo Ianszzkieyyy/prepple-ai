@@ -38,6 +38,8 @@ export default async function generateReport(roomId: string, candidateId: string
       .single()
     if (candidateError) throw new Error('Error fetching candidate data')
 
+    console.log('Room Data:', roomData)
+    console.log('Candidate Data:', candidateData)
     const resumeText = await parseResume(await generateSignedResume(candidateData.resume_url))
     const transcriptText = JSON.stringify(sessionHistory)
 
