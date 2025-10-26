@@ -1,7 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server';
 import { GoogleGenAI } from '@google/genai'
-import { parseResume } from './parseResume';
-import { generateSignedResume } from './generateSignedResume';
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_API_KEY || '',
@@ -21,7 +19,7 @@ export interface InterviewReport {
   areas_for_improvement: string[];
 }
 
-export default async function generateReport(roomId: string, candidateId: string, sessionHistory: any[], usageMetrics: any): Promise<InterviewReport> {
+export default async function generateReport(roomId: string, candidateId: string, parsedResume: string, sessionHistory: any[], usageMetrics: any): Promise<InterviewReport> {
     const supabase = await createClient();
 
     const { data: roomData, error: roomError } = await supabase
@@ -38,21 +36,22 @@ export default async function generateReport(roomId: string, candidateId: string
       .single()
     if (candidateError) throw new Error('Error fetching candidate data')
 
+    const transcriptText = JSON.stringify(sessionHistory)
     console.log('Room Data:', roomData)
     console.log('Candidate Data:', candidateData)
-    const resumeText = await parseResume(await generateSignedResume(candidateData.resume_url))
-    const transcriptText = JSON.stringify(sessionHistory)
-
+    console.log('Parsed Resume:', parsedResume)
+    console.log('Transcript Text:', transcriptText)
+  
     const prompt = `You are an expert HR analyst evaluating an interview for Prepple AI, a platform that automates initial HR screening interviews.
       JOB POSTING:
       ${roomData.job_posting}
 
-      CANDIDATE NAME: ${candidateData.users[0].name}
+      CANDIDATE NAME: ${(candidateData.users as unknown as { name: string }).name}
       POSITION: ${roomData.room_title}
       INTERVIEW TYPE: ${roomData.interview_type}
 
       CANDIDATE'S RESUME:
-      ${resumeText || 'Resume not available'}
+      ${parsedResume || 'Resume not available'}
 
       INTERVIEW TRANSCRIPT:
       ${transcriptText}

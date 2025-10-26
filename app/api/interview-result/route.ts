@@ -13,13 +13,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
         const body = await req.json()
-        const { roomId, candidateId, sessionHistory, usageMetrics } = body
+        const { roomId, candidateId, sessionHistory, parsedResume, usageMetrics } = body
 
-        if (!roomId || !candidateId || !sessionHistory || !usageMetrics) {
+        if (!roomId || !candidateId || !sessionHistory || !parsedResume || !usageMetrics) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
         }
 
-        const report = await generateReport(roomId, candidateId, sessionHistory, usageMetrics);
+        const report = await generateReport(roomId, candidateId, parsedResume, sessionHistory, usageMetrics);
 
         const { data: savedReport, error: saveError } = await supabase
               .from('ai_reports')
@@ -28,6 +28,9 @@ export async function POST(req: Request) {
                 tone_analysis: report.tone_analysis,
                 performance_summary: report.performance_summary,
                 recommendation: report.recommendation,
+                key_highlights: report.key_highlights,
+                areas_for_improvement: report.areas_for_improvement,
+                interview_score: report.interview_score,
               })
               .select('id')
               .single();

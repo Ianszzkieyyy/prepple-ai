@@ -10,6 +10,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { Welcome } from '@/components/welcome';
 import useConnectionDetails from '@/hooks/useConnectionDetails';
 import type { AppConfig } from '@/lib/livekit/types';
+import { useRouter } from 'next/navigation';
 
 const MotionWelcome = motion.create(Welcome);
 const MotionSessionView = motion.create(SessionView);
@@ -21,6 +22,7 @@ interface AppProps {
 }
 
 export function App({ appConfig, roomId, candidateId }: AppProps) {
+  const router = useRouter()
   const room = useMemo(() => new Room(), []);
   const [sessionStarted, setSessionStarted] = useState(false);
   const { refreshConnectionDetails, existingOrRefreshConnectionDetails } =
@@ -29,7 +31,7 @@ export function App({ appConfig, roomId, candidateId }: AppProps) {
   useEffect(() => {
     const onDisconnected = () => {
       setSessionStarted(false);
-      refreshConnectionDetails();
+      router.push('/')
     };
     const onMediaDevicesError = (error: Error) => {
       toastAlert({

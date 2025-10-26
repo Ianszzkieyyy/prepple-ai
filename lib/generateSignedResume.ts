@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 
-export async function generateSignedResume(resumeUrl: string) {
+export async function generateSignedResume(resumeUrl: string) : Promise<string> {
     const supabase = await createClient();
     const resumePath = resumeUrl.split('/resumes/')[1]
     console.log('Resume Path:', resumePath);
