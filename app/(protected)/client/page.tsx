@@ -29,6 +29,9 @@ export default async function Home() {
 
   return (
     <div>
+      <div className="absolute">
+        
+      </div>
       <h1>Protected Client Page</h1>
       <p>You are currently logged in as {userProfile?.name}</p>
       <JoinRoomCode />
