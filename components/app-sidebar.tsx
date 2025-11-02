@@ -71,7 +71,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
           <SidebarGroup className="-p-2">
             <SidebarGroupLabel>Rooms</SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenuItem key={"Create Rooms"}>
+              <SidebarMenuItem key={"Create Room"}>
                 <SidebarMenuButton asChild>
                   <Link href={"/admin/create"}>
                     <DiamondPlus className="mr-2 h-4 w-4" />
@@ -90,17 +90,17 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
             </SidebarGroupContent>
           </SidebarGroup>
           <SidebarGroup className="-p-2">
-            <SidebarGroupLabel>Clients</SidebarGroupLabel>
+            <SidebarGroupLabel>Candidates</SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenuItem key={"Clients List"}>
+              <SidebarMenuItem key={"Candidates List"}>
                 <SidebarMenuButton asChild>
                   <Link href={"/admin/list"}>
                     <Users className="mr-2 h-4 w-4" />
-                    <span>Clients List</span>
+                    <span>List</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem key={"Records"}>
+              <SidebarMenuItem key={"Candidates Records"}>
                 <SidebarMenuButton asChild>
                   <Link href={"/admin/records"}>
                     <History className="mr-2 h-4 w-4" />

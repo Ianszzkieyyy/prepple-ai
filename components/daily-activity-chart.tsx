@@ -16,7 +16,7 @@ export function DailyJoinsChart({ data }: DailyJoinsChartProps) {
           color: "hsl(var(--chart-1))",
         },
       }}
-      className="h-64"
+      className="w-full h-64"
     >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>

@@ -1,8 +1,13 @@
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
-import { SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarInset } from "@/components/ui/sidebar";
+import { BreadcrumbHeader } from "@/components/breadcrumb-header";
+import getCandidatesData from "@/lib/dashboard/getCandidateData";
+import getRoomsData from "@/lib/dashboard/getRoomsData";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DailyJoinsChart } from "@/components/daily-activity-chart";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -19,24 +24,15 @@ export default async function Home() {
     console.error('Error fetching user profile:', profileError);
   }
 
-  // Fetch rooms data for HR user
-  const { data: roomsData, error: roomsError } = await supabase
-    .from('rooms')
-    .select('id, room_title, room_code, room_status, start_date')
-    .eq('hr_id', user?.id);
-  if (roomsError) {
-    console.error('Error fetching rooms data:', roomsError);
-  }
+  // Fetch candidate activity data for chart
+  const candidateRows = await getCandidatesData(user?.id || "", "dashboard");
+  const candidateCount = await getCandidatesData(user?.id || "", "count");
+  const candidateAccepted = await getCandidatesData(user?.id || "", "acceptedCount");
+  const candidateAvgScore = await getCandidatesData(user?.id || "", "averageScore");
 
-  const { data: candidateRows, error: candidatesError } = await supabase
-    .from('candidates')
-    .select('created_at, applied_room, rooms:applied_room(id, hr_id)')
-    .eq('rooms.hr_id', user?.id);
-  if (candidatesError) {
-    console.error('Error fetching candidates:', candidatesError);
-  }
+  const roomCount = await getRoomsData(user?.id || "", "count");
 
-  const activityData = (candidateRows ?? []).reduce<Record<string, number>>((acc, row) => {
+  const activityData = (Array.isArray(candidateRows) ? candidateRows : []).reduce<Record<string, number>>((acc, row) => {
     const key = new Date(row.created_at).toISOString().slice(0, 10);
     acc[key] = (acc[key] ?? 0) + 1;
     return acc;
@@ -55,14 +51,59 @@ export default async function Home() {
     );
   }
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/admin" },
+  ]
+
   return (
     <SidebarInset>
-      <div className="w-full">
-        <h1 className="text-xl">Rooms</h1>
-        <Button asChild>
-          <Link href="/admin/create">Create Room</Link>
-        </Button>
-        <SidebarTrigger/>
+      <BreadcrumbHeader items={breadcrumbItems} />
+      <div className="w-full flex flex-col gap-8 px-32 py-8">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <div className="grid grid-cols-4 gap-4">
+            <div >
+              <Card>
+                <CardTitle className="p-6">Total Candidates</CardTitle>
+                <CardContent>
+                  <span className="font-bold text-2xl">{candidateCount || 0}</span>
+                </CardContent>
+              </Card>
+            </div>
+            <div >
+              <Card>
+                <CardTitle className="p-6">Total Rooms</CardTitle>
+                <CardContent>
+                  <span className="font-bold text-2xl">{roomCount || 0}</span>
+                </CardContent>
+              </Card>
+            </div>
+            <div >
+              <Card>
+                <CardTitle className="p-6">Candidates Accepted</CardTitle>
+                <CardContent>
+                  <span className="font-bold text-2xl">{candidateAccepted || 0}</span>
+                </CardContent>
+              </Card>
+            </div>
+            <div >
+              <Card>
+                <CardTitle className="p-6">Average Score</CardTitle>
+                <CardContent>
+                  <span className="font-bold text-2xl">{candidateAvgScore.toFixed(2) || 0}</span>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="col-span-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Daily Candidate Joins</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DailyJoinsChart data={chartData} />
+                </CardContent>
+              </Card>
+            </div>
+        </div>
       </div>
     </SidebarInset>
   )
