@@ -2,8 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { DailyJoinsChart } from "@/components/daily-activity-chart";
+import { SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -57,33 +56,14 @@ export default async function Home() {
   }
 
   return (
-    <div>
-      <h1 className="text-xl">Rooms</h1>
-      <Button asChild>
-        <Link href="/admin/create">Create Room</Link>
-      </Button>
-      <div className="grid grid-cols-6 grid-rows-5 gap-4">
-        <div className="col-span-4 row-span-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Daily Candidate Joins</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DailyJoinsChart data={chartData} />
-            </CardContent>
-          </Card>
-        </div>
-        <div className="col-span-2 row-span-3 col-start-5">
-          <Card>
-            <CardHeader>
-              <CardTitle>No. of Rooms</CardTitle>
-            </CardHeader>
-          </Card>
-        </div>
-        <div className="col-span-2 row-span-2 row-start-4">3</div>
-        <div className="col-span-2 row-span-2 col-start-3 row-start-4">4</div>
-        <div className="col-span-2 row-span-2 col-start-5 row-start-4">5</div>
+    <SidebarInset>
+      <div className="w-full">
+        <h1 className="text-xl">Rooms</h1>
+        <Button asChild>
+          <Link href="/admin/create">Create Room</Link>
+        </Button>
+        <SidebarTrigger/>
       </div>
-    </div>
+    </SidebarInset>
   )
 }
