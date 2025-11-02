@@ -59,11 +59,13 @@ export default async function Home() {
 
   return (
     <SidebarInset>
-      <h1 className="text-xl">Rooms</h1>
-      <Button asChild>
-        <Link href="/admin/create">Create Room</Link>
-      </Button>
-      <SidebarTrigger className="w-full"/>
+      <div className="w-full">
+        <h1 className="text-xl">Rooms</h1>
+        <Button asChild>
+          <Link href="/admin/create">Create Room</Link>
+        </Button>
+        <SidebarTrigger/>
+      </div>
     </SidebarInset>
   )
 }

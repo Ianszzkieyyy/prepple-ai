@@ -124,7 +124,7 @@ export const SessionView = ({
 
       <div className="bg-background mp-12 fixed top-0 right-0 left-0 h-32 md:h-36">
         {/* skrim */}
-        <div className="from-background absolute bottom-0 left-0 h-12 w-full translate-y-full bg-gradient-to-b to-transparent" />
+        <div className="from-background absolute bottom-0 left-0 h-12 w-full translate-y-full bg-linear-to-b to-transparent" />
       </div>
 
       <MediaTiles chatOpen={chatOpen} />
@@ -157,7 +157,7 @@ export const SessionView = ({
                   sessionStarted && messages.length === 0 && 'pointer-events-none'
                 )}
               >
-                <p className="animate-text-shimmer inline-block !bg-clip-text text-sm font-semibold text-transparent">
+                <p className="animate-text-shimmer inline-block bg-clip-text! text-sm font-semibold text-transparent">
                   Agent is listening, ask it a question
                 </p>
               </motion.div>
@@ -170,7 +170,7 @@ export const SessionView = ({
             />
           </div>
           {/* skrim */}
-          <div className="from-background border-background absolute top-0 left-0 h-12 w-full -translate-y-full bg-gradient-to-t to-transparent" />
+          <div className="from-background border-background absolute top-0 left-0 h-12 w-full -translate-y-full bg-linear-to-t to-transparent" />
         </motion.div>
       </div>
     </section>

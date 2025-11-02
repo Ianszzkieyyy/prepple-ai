@@ -156,7 +156,7 @@ export function AgentControlBar({
                   'pl-2',
                   'peer-data-[state=off]/track:text-destructive-foreground',
                   'hover:text-fg1 focus:text-fg1',
-                  'hover:peer-data-[state=off]/track:text-destructive-foreground focus:peer-data-[state=off]/track:text-destructive-foreground',
+                  'peer-data-[state=off]/track:hover:text-destructive-foreground peer-data-[state=off]/track:focus:text-destructive-foreground',
                   'hidden rounded-l-none md:block',
                 ])}
               />
@@ -185,7 +185,7 @@ export function AgentControlBar({
                   'pl-2',
                   'peer-data-[state=off]/track:text-destructive-foreground',
                   'hover:text-fg1 focus:text-fg1',
-                  'hover:peer-data-[state=off]/track:text-destructive-foreground focus:peer-data-[state=off]/track:text-destructive-foreground',
+                  'peer-data-[state=off]/track:hover:text-destructive-foreground peer-data-[state=off]/track:focus:text-destructive-foreground',
                   'rounded-l-none',
                 ])}
               />
