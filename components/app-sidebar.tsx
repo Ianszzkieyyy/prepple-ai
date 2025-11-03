@@ -30,12 +30,15 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 
+import { usePathname } from "next/navigation"
+
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: {name: string, email: string} | null;
 }
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const { open } = useSidebar();
+  const pathname = usePathname();
 
   return (
     <Sidebar collapsible="icon"  {...props}>
@@ -61,7 +64,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarContent className="p-2">
         <SidebarMenu>
           <SidebarMenuItem key={"Dashboard"}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton className={pathname === "/admin" ? "bg-primary/50 text-primary-foreground hover:bg-primary/70 hover:text-primary-foreground transition-colors duration-100" : ""} asChild>
               <Link href={"/admin"}>
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 <span>Dashboard</span>
@@ -72,15 +75,15 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
             <SidebarGroupLabel>Rooms</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenuItem key={"Create Room"}>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton className={pathname === "/admin/create" ? "bg-primary/50 text-primary-foreground hover:bg-primary/70 hover:text-primary-foreground transition-colors duration-100" : ""} asChild>
                   <Link href={"/admin/create"}>
                     <DiamondPlus className="mr-2 h-4 w-4" />
-                    <span>Create Rooms</span>
+                    <span>Create Room</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem key={"View Rooms"}>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton className={pathname === "/admin/rooms" ? "bg-primary/50 text-primary-foreground hover:bg-primary/70 hover:text-primary-foreground transition-colors duration-100" : ""} asChild>
                   <Link href={"/admin/rooms"}>
                     <Shapes className="mr-2 h-4 w-4" />
                     <span>View Rooms</span>
@@ -93,7 +96,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
             <SidebarGroupLabel>Candidates</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenuItem key={"Candidates List"}>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton className={pathname === "/admin/list" ? "bg-primary/50 text-primary-foreground hover:bg-primary/70 hover:text-primary-foreground transition-colors duration-100" : ""} asChild>
                   <Link href={"/admin/list"}>
                     <Users className="mr-2 h-4 w-4" />
                     <span>List</span>
@@ -101,7 +104,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem key={"Candidates Records"}>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton className={pathname === "/admin/records" ? "bg-primary/50 text-primary-foreground hover:bg-primary/70 hover:text-primary-foreground transition-colors duration-100" : ""} asChild>
                   <Link href={"/admin/records"}>
                     <History className="mr-2 h-4 w-4" />
                     <span>Records</span>

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 
-type Kind = "count" | "dashboard" | "all" | "recent";
+type Kind = "count" | "dashboard" | "all" | "recent" | "active";
 
 export default async function getRoomsData(id: string, kind?: Kind) {
     const supabase = await createClient();
@@ -44,6 +44,19 @@ export default async function getRoomsData(id: string, kind?: Kind) {
       return recentRooms;
     }
 
+    if (kind === "active") {
+      const { data: activeRooms, error: roomsError } = await supabase
+          .from('rooms')
+          .select('id, room_title, room_code, room_status, start_date')
+          .eq('hr_id', id)
+          .eq('room_status', 'active')
+          .order('start_date', { ascending: false });
+      if (roomsError) {
+        console.error('Error fetching active rooms:', roomsError);
+      }
+      
+      return activeRooms;
+    }
     // Default to fetching all rooms
     const { data: allRooms, error: roomsError } = await supabase
         .from('rooms')

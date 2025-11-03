@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ThemeSwitcher } from "./theme-switcher";
 import React from "react";
 
 type BreadcrumbItem = {
@@ -48,6 +49,9 @@ export function BreadcrumbHeader({ items }: BreadcrumbHeaderProps) {
             ))}
           </BreadcrumbList>
         </Breadcrumb>
+      </div>
+      <div className="ml-auto px-4">
+        <ThemeSwitcher />
       </div>
     </header>
   );
