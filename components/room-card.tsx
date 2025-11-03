@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 
 type RoomStatus = "active" | "paused" | "archived";
 
@@ -122,7 +123,7 @@ export default function RoomCard({ room }: { room: RoomCardProps }) {
                     </div>
                 </div>
                 <div className="flex gap-1">
-                    <Button variant="outline">View Room</Button>
+                    <Button variant="outline" asChild><Link href={`/admin/rooms/${room.id}`}>View Room</Link></Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button size="icon" variant="ghost" aria-label="Open room actions">
