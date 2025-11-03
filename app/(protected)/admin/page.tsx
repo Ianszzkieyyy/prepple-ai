@@ -7,7 +7,11 @@ import getCandidatesData from "@/lib/dashboard/getCandidateData";
 import getRoomsData from "@/lib/dashboard/getRoomsData";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DailyJoinsChart } from "@/components/daily-activity-chart";
+import RoomCard from "@/components/room-card";
+import { Button } from "@/components/ui/button";
+import { RoomType } from "@/lib/types";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -31,6 +35,7 @@ export default async function Home() {
   const candidateAvgScore = await getCandidatesData(user?.id || "", "averageScore");
 
   const roomCount = await getRoomsData(user?.id || "", "count");
+  const roomDashboardData = await getRoomsData(user?.id || "", "recent");
 
   const activityData = (Array.isArray(candidateRows) ? candidateRows : []).reduce<Record<string, number>>((acc, row) => {
     const key = new Date(row.created_at).toISOString().slice(0, 10);
@@ -104,7 +109,34 @@ export default async function Home() {
               </Card>
             </div>
         </div>
-        
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-semibold">Rooms</h1>
+          <div className="flex justify-between items-center gap-4">
+            <div className="flex gap-4">
+              <Button asChild><Link href="/admin/rooms/create">Create Room</Link></Button>
+              <Button asChild variant={"outline"}><Link href="/admin/rooms">View All Rooms</Link></Button>
+            </div>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date_desc">Date Descending</SelectItem>
+                <SelectItem value="date_asc">Date Ascending</SelectItem>
+                <SelectItem value="most_candidates">Most Candidates</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
+          {roomDashboardData && roomDashboardData.length > 0 ? (
+              roomDashboardData.map((room: RoomType) => (
+                <RoomCard key={room.id} room={room} />
+              ))
+          ) : (
+            <p>No rooms available. Create a new room to get started.</p>
+          )}
+        </div>
       </div>
     </SidebarInset>
   )

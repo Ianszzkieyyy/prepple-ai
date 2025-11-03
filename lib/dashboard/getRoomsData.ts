@@ -1,14 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
+import { RoomType } from "@/lib/types"
 
 type Kind = "count" | "dashboard" | "all" | "recent" | "active";
 
-export default async function getRoomsData(id: string, kind?: Kind) {
+async function getRoomsData(id: string, kind: "count"): Promise<number | null>
+async function getRoomsData(id: string, kind: "dashboard"): Promise<RoomType[] | null>
+async function getRoomsData(id: string, kind: "recent"): Promise<RoomType[] | null>
+async function getRoomsData(id: string, kind?: "all"): Promise<any[] | null>
+
+async function getRoomsData(id: string, kind?: Kind) {
     const supabase = await createClient();
 
     if (kind === "dashboard") {
       const { data: roomsDashboardData, error: roomsError } = await supabase
           .from('rooms')
-          .select('id, room_title, room_code, room_status, start_date')
+          .select('id, room_title, room_code, room_status, start_date, candidates(count)')
           .eq('hr_id', id)
           .order('start_date', { ascending: false });
       if (roomsError) {
@@ -33,7 +39,7 @@ export default async function getRoomsData(id: string, kind?: Kind) {
     if (kind === "recent") {
       const { data: recentRooms, error: roomsError } = await supabase
           .from('rooms')
-          .select('id, room_title, room_code, room_status, start_date')
+          .select('id, room_title, room_code, room_status, start_date, candidates(count)')
           .eq('hr_id', id)
           .order('start_date', { ascending: false })
           .limit(3);
@@ -44,19 +50,6 @@ export default async function getRoomsData(id: string, kind?: Kind) {
       return recentRooms;
     }
 
-    if (kind === "active") {
-      const { data: activeRooms, error: roomsError } = await supabase
-          .from('rooms')
-          .select('id, room_title, room_code, room_status, start_date')
-          .eq('hr_id', id)
-          .eq('room_status', 'active')
-          .order('start_date', { ascending: false });
-      if (roomsError) {
-        console.error('Error fetching active rooms:', roomsError);
-      }
-      
-      return activeRooms;
-    }
     // Default to fetching all rooms
     const { data: allRooms, error: roomsError } = await supabase
         .from('rooms')
@@ -68,3 +61,5 @@ export default async function getRoomsData(id: string, kind?: Kind) {
 
     return allRooms;
 }
+
+export default getRoomsData
