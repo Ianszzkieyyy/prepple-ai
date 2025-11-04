@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
+import { X } from "lucide-react";
 
 const roomSchema = z
   .object({
@@ -85,6 +86,9 @@ export function CreateRoomForm({
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [aiInstructions, setAiInstructions] = useState("");
+  const [customParameters, setCustomParameters] = useState<
+    RoomFormValues["customParameters"]
+  >([]);
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof RoomFormValues, string>>
   >({});
@@ -117,6 +121,7 @@ export function CreateRoomForm({
       startDate,
       endDate,
       aiInstructions,
+      customParameters,
     });
 
     if (!validation.success) {
@@ -155,6 +160,9 @@ export function CreateRoomForm({
         validation.data.aiInstructions?.trim()
           ? validation.data.aiInstructions.trim()
           : null,
+      custom_parameters: validation.data.customParameters && validation.data.customParameters.length > 0
+        ? validation.data.customParameters
+        : null,
     });
 
     if (error) {
@@ -357,7 +365,259 @@ export function CreateRoomForm({
             </CardContent>
           </Card>
         </div>
+      </TabsContent>
+      <TabsContent value="custom">
+        <div className={`${className} w-xl`} {...props}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Create custom room</CardTitle>
+              <CardDescription>
+                Configure the session details for the AI interviewer. A custom room allows you to specify unique parameters for the interview.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                <div className="space-y-2">
+                  <Label htmlFor="room-title">Room title</Label>
+                  <Input
+                    id="room-title"
+                    placeholder="Frontend Hiring Sprint"
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                  />
+                  {fieldErrors.title && (
+                    <p className="text-sm text-red-500">{fieldErrors.title}</p>
+                  )}
+                </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="job-posting">Interview Description</Label>
+                  <Textarea
+                    id="job-posting"
+                    placeholder="Describe the type of assessment interview we will be conducting. Discuss objectives, key focus areas, and any specific skills or competencies to be evaluated..."
+                    value={jobPosting}
+                    onChange={(event) => setJobPosting(event.target.value)}
+                    maxLength={3000}
+                    rows={6}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    {fieldErrors.jobPosting ? (
+                      <span className="text-red-500">
+                        {fieldErrors.jobPosting}
+                      </span>
+                    ) : (
+                      <span />
+                    )}
+                    <span>{jobPosting.length}/3000</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="ai-instructions">Additional AI instructions</Label>
+                  <Textarea
+                    id="ai-instructions"
+                    placeholder="Add optional guidance for the AI interviewer (e.g. tone, topics to stress)..."
+                    value={aiInstructions}
+                    onChange={(event) => setAiInstructions(event.target.value)}
+                    maxLength={200}
+                    rows={3}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    {fieldErrors.aiInstructions ? (
+                      <span className="text-red-500">{fieldErrors.aiInstructions}</span>
+                    ) : (
+                      <span />
+                    )}
+                    <span>{aiInstructions.length}/200</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Custom Parameters</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Define up to 5 additional custom parameters for this interview room. These parameters will guide the AI interviewer on specific areas to focus during the assessment and will also show up in the candidate report. By default, the AI will assess tone analysis, performance summary, recommendations, key highlights, areas for improvement, and an overall interview score.
+                  </p>
+                  {customParameters && customParameters.map((param, index) => (
+                    <div key={index} className="space-y-3 rounded-md border p-4">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-base font-medium">Parameter #{index + 1}</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            const newParams = [...customParameters];
+                            newParams.splice(index, 1);
+                            setCustomParameters(newParams);
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor={`param-name-${index}`}>Name</Label>
+                          <Input
+                            id={`param-name-${index}`}
+                            placeholder="e.g., 'Problem Solving Ability'"
+                            value={param.paramName}
+                            onChange={(e) => {
+                              const newParams = [...customParameters];
+                              newParams[index] = { ...newParams[index], paramName: e.target.value };
+                              setCustomParameters(newParams);
+                            }}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`param-type-${index}`}>Type</Label>
+                          <Select
+                            value={param.paramType}
+                            onValueChange={(value: "string" | "number" | "boolean") => {
+                              const newParams = [...customParameters];
+                              newParams[index] = { ...newParams[index], paramType: value };
+                              setCustomParameters(newParams);
+                            }}
+                          >
+                            <SelectTrigger id={`param-type-${index}`}>
+                              <SelectValue placeholder="Select a type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="string">String</SelectItem>
+                              <SelectItem value="number">Number</SelectItem>
+                              <SelectItem value="boolean">Boolean</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`param-desc-${index}`}>Description</Label>
+                        <Textarea
+                          id={`param-desc-${index}`}
+                          placeholder="e.g., 'How effectively the candidate approaches and solves problems during the interview.'"
+                          value={param.paramDescription}
+                          onChange={(e) => {
+                            const newParams = [...customParameters];
+                            newParams[index] = { ...newParams[index], paramDescription: e.target.value };
+                            setCustomParameters(newParams);
+                          }}
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      if (customParameters && customParameters.length < 5) {
+                        setCustomParameters([
+                          ...(customParameters || []),
+                          { paramName: "", paramType: "string", paramDescription: "" },
+                        ]);
+                      }
+                    }}
+                    disabled={!customParameters || customParameters.length >= 5}
+                  >
+                    Add Parameter
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Ideal interview length: {idealLength} min</Label>
+                  <Slider
+                    value={[idealLength]}
+                    onValueChange={(value) => setIdealLength(value[0] ?? 4)}
+                    min={3}
+                    max={5}
+                    step={1}
+                  />
+                  {fieldErrors.idealLength && (
+                    <p className="text-sm text-red-500">
+                      {fieldErrors.idealLength}
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Start date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !startDate && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {startDate ? format(startDate, "PPP") : "Pick a start date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={startDate}
+                          onSelect={setStartDate}
+                          disabled={(date) => (endDate ? date > endDate : false)}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {fieldErrors.startDate && (
+                      <p className="text-sm text-red-500">
+                        {fieldErrors.startDate}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>End date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !endDate && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {endDate ? format(endDate, "PPP") : "Pick an end date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={endDate}
+                          onSelect={setEndDate}
+                          disabled={(date) => (startDate ? date < startDate : false)}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {fieldErrors.endDate && (
+                      <p className="text-sm text-red-500">
+                        {fieldErrors.endDate}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {formError && (
+                  <p className="text-sm text-red-500">{formError}</p>
+                )}
+                {formSuccess && (
+                  <p className="text-sm text-green-600">{formSuccess}</p>
+                )}
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? "Creating room..." : "Create room"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </TabsContent>
     </Tabs>
   );
