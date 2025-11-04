@@ -9,7 +9,7 @@ interface RoomType {
     job_posting?: string;
     ai_instruction?: string;
     ideal_length?: number;
-    custom_parameters?: Array<{ paramName: string; paramType: string; paramValue: string }>;
+    custom_parameters?: Array<{ paramName: string; paramType: string; paramDescription: string }>;
     candidates?: [{ count: number }]; 
 }
 

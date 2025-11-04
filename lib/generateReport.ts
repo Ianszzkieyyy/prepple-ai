@@ -17,6 +17,7 @@ export interface InterviewReport {
   interview_score: number;
   key_highlights: string[];
   areas_for_improvement: string[];
+  custom_parameters_result?: Record<string, any>;
 }
 
 export default async function generateReport(roomId: string, candidateId: string, parsedResume: string, sessionHistory: any[], usageMetrics: any): Promise<InterviewReport> {
@@ -24,7 +25,7 @@ export default async function generateReport(roomId: string, candidateId: string
 
     const { data: roomData, error: roomError } = await supabase
       .from('rooms')
-      .select('id, room_title, interview_type, job_posting, ideal_length')
+      .select('id, room_title, interview_type, job_posting, ideal_length, custom_parameters')
       .eq('id', roomId)
       .single();
     if (roomError) throw new Error('Error fetching room data');
@@ -42,7 +43,9 @@ export default async function generateReport(roomId: string, candidateId: string
     console.log('Parsed Resume:', parsedResume)
     console.log('Transcript Text:', transcriptText)
   
-    const prompt = `You are an expert HR analyst evaluating an interview for Prepple AI, a platform that automates initial HR screening interviews.
+    
+
+    const prompt = roomData.interview_type !== 'custom' ? `You are an expert HR analyst evaluating an interview for Prepple AI, a platform that automates initial HR screening interviews.
       JOB POSTING:
       ${roomData.job_posting}
 
@@ -80,7 +83,50 @@ export default async function generateReport(roomId: string, candidateId: string
       - Time management (interview duration vs. ideal length)
       - Alignment between resume experience and interview responses
 
-      Respond ONLY with valid JSON.`
+      Respond ONLY with valid JSON.` : `
+      
+      You are an expert HR analyst evaluating an interview for Prepple AI, a platform that automates initial HR screening interviews.
+      
+      INTERVIEW DETAILS:
+      ${roomData.job_posting}
+
+      CANDIDATE NAME: ${(candidateData.users as unknown as { name: string }).name}
+      INTERVIEW PURPOSE: ${roomData.room_title}
+
+      CANDIDATE'S RESUME:
+      ${parsedResume || 'Resume not available'}
+
+      INTERVIEW TRANSCRIPT:
+      ${transcriptText}
+
+      Generate a comprehensive JSON report with the following structure:
+      {
+        "tone_analysis": {
+          "confidence_level": <0-100>,
+          "communication_clarity": <0-100>,
+          "enthusiasm": <0-100>,
+          "professionalism": <0-100>
+        },
+        "performance_summary": "<2-3 paragraph narrative evaluation covering key strengths, areas of concern, and fit for the role>",
+        "recommendation": "<one of: strongly_recommend, recommend, neutral, not_recommend>",
+        "interview_score": <0-100>,
+        "key_highlights": ["<highlight 1>", "<highlight 2>", "<highlight 3>"],
+        "areas_for_improvement": ["<area 1>", "<area 2>", "<area 3>"]
+        ${roomData.custom_parameters && roomData.custom_parameters.length > 0 ? `,"custom_parameters_result": {
+          ${roomData.custom_parameters.map(param => `"${param.paramName}": "<${param.paramType}>": "${param.paramDescription}"`).join(',\n')}
+        }` : ''}
+      }
+
+      Evaluation Criteria:
+      - Relevance of candidate's responses to the interview purpose
+      - Communication skills and clarity
+      - Cultural fit indicators
+      - Professional demeanor and enthusiasm
+      - Time management (interview duration vs. ideal length)
+      - Alignment between resume experience and interview responses
+
+      Respond ONLY with valid JSON.
+      `
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash-lite',
@@ -138,7 +184,21 @@ export default async function generateReport(roomId: string, candidateId: string
                 type: 'string'
               },
               description: 'Areas where candidate can improve'
-            }
+            },
+            ...(roomData.interview_type === 'custom' && roomData.custom_parameters?.length > 0 && {
+              custom_parameters_result: {
+                type: 'object',
+                properties: roomData.custom_parameters.reduce((acc, param) => {
+                  acc[param.paramName] = {
+                    type: param.paramType === 'number' ? 'number' : 'string',
+                    description: param.paramDescription
+                  };
+                  return acc;
+                }, {} as Record<string, any>),
+                required: roomData.custom_parameters.map(p => p.paramName),
+                description: 'Custom evaluation parameters defined by HR'
+              }
+            })
           },
           required: [
             'tone_analysis',
@@ -146,7 +206,8 @@ export default async function generateReport(roomId: string, candidateId: string
             'recommendation',
             'interview_score',
             'key_highlights',
-            'areas_for_improvement'
+            'areas_for_improvement',
+            ...(roomData.interview_type === 'custom' && roomData.custom_parameters?.length > 0 ? ['custom_parameters_result'] : [])
           ],
         },
         temperature: 0.7,
@@ -155,6 +216,80 @@ export default async function generateReport(roomId: string, candidateId: string
         
       }
     })
+
+    // const response = await ai.models.generateContent({
+    //   model: 'gemini-2.0-flash-lite',
+    //   contents: prompt,
+    //   config: {
+    //     responseMimeType: 'application/json',
+    //     responseSchema: {
+    //       type: 'object',
+    //       properties: {
+    //         tone_analysis: {
+    //           type: 'object',
+    //           properties: {
+    //             confidence_level: {
+    //               type: 'number',
+    //               description: 'Candidate confidence level from 0-100'
+    //             },
+    //             communication_clarity: {
+    //               type: 'number',
+    //               description: 'Communication clarity score from 0-100'
+    //             },
+    //             enthusiasm: {
+    //               type: 'number',
+    //               description: 'Enthusiasm level from 0-100'
+    //             },
+    //             professionalism: {
+    //               type: 'number',
+    //               description: 'Professionalism score from 0-100'
+    //             }
+    //           },
+    //           required: ['confidence_level', 'communication_clarity', 'enthusiasm', 'professionalism']
+    //         },
+    //         performance_summary: {
+    //           type: 'string',
+    //           description: '2-3 paragraph narrative evaluation of candidate performance'
+    //         },
+    //         recommendation: {
+    //           type: 'string',
+    //           enum: ['strongly_recommend', 'recommend', 'neutral', 'not_recommend'],
+    //           description: 'HR hiring recommendation'
+    //         },
+    //         interview_score: {
+    //           type: 'number',
+    //           description: 'Overall interview score from 0-100'
+    //         },
+    //         key_highlights: {
+    //           type: 'array',
+    //           items: {
+    //             type: 'string'
+    //           },
+    //           description: 'Key positive highlights from the interview'
+    //         },
+    //         areas_for_improvement: {
+    //           type: 'array',
+    //           items: {
+    //             type: 'string'
+    //           },
+    //           description: 'Areas where candidate can improve'
+    //         }
+    //       },
+    //       required: [
+    //         'tone_analysis',
+    //         'performance_summary',
+    //         'recommendation',
+    //         'interview_score',
+    //         'key_highlights',
+    //         'areas_for_improvement'
+    //       ],
+    //     },
+    //     temperature: 0.7,
+    //     topP: 0.95,
+    //     topK: 40,
+        
+    //   }
+    // })
 
     const resultJson = response.text || ''
 
