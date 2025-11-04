@@ -45,7 +45,7 @@ export default async function RoomDetails({ params }: { params: { roomId: string
         <div className="w-full">
             <BreadcrumbHeader items={[{ label: "Home", href: "/admin" }, { label: "Rooms", href: "/admin/rooms" }, { label: "Room Details", href: "#" }]} />
             <div className="flex flex-col px-32 py-8">
-                <div className="flex">
+                <div className="flex gap-8">
                     <div className="flex-4 flex flex-col justify-between items-stretch">
                         <h1 className="text-2xl font-semibold">{room?.room_title}</h1>
                         <div className="flex">

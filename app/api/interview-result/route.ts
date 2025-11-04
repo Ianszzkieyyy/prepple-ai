@@ -31,6 +31,7 @@ export async function POST(req: Request) {
                 key_highlights: report.key_highlights,
                 areas_for_improvement: report.areas_for_improvement,
                 interview_score: report.interview_score,
+                custom_parameters_result: report.custom_parameters_result,
               })
               .select('id')
               .single();
