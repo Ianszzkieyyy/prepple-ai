@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { BreadcrumbHeader } from "@/components/breadcrumb-header";
 import { RoomType } from "@/lib/types";
+import CandidatesCard from "@/components/candidates-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
@@ -44,9 +45,9 @@ export default async function RoomDetails({ params }: { params: { roomId: string
     return (
         <div className="w-full">
             <BreadcrumbHeader items={[{ label: "Home", href: "/admin" }, { label: "Rooms", href: "/admin/rooms" }, { label: "Room Details", href: "#" }]} />
-            <div className="flex flex-col px-32 py-8">
+            <div className="flex flex-col gap-16 px-32 py-8">
                 <div className="flex gap-8">
-                    <div className="flex-4 flex flex-col justify-between items-stretch">
+                    <div className="flex-4 flex flex-col gap-4">
                         <h1 className="text-2xl font-semibold">{room?.room_title}</h1>
                         <div className="flex">
                             <Button asChild><Link href={`/admin/rooms/${room?.id}/edit`}>Edit Room</Link></Button>
@@ -87,7 +88,33 @@ export default async function RoomDetails({ params }: { params: { roomId: string
                             </Card>
                         </div>
                     </div>
-
+                </div>
+                <div className="w-full">
+                    <Card className="w-full h-full">
+                        <CardContent className="p-4">
+                            <h2 className="text-lg font-semibold">AI Report</h2>
+                            <p className="text-sm text-muted-foreground">AI interview reports for candidates who have completed interviews in this room. Generation will be available after the duration of the room ends.</p>
+                            <Button variant="outline" disabled={true} className="mt-4" asChild><Link href={`/admin/rooms/${room?.id}/ai-reports`}>Generate AI Report</Link></Button>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="w-full">
+                    <h1 className="text-2xl font-semibold">Candidates</h1>
+                    <div className="flex flex-col gap-4 mt-4">
+                        {candidatesData && candidatesData.length > 0 ? (
+                            candidatesData.map((candidate) => (
+                                <CandidatesCard key={candidate.id} candidate={{
+                                    id: candidate.id,
+                                    name: candidate.users.name,
+                                    email: candidate.users.email,
+                                    interview_score: candidate.interview_score,
+                                    candidate_status: candidate.candidate_status,
+                                }} />
+                            ))
+                        ) : (
+                            <p className="text-sm text-muted-foreground">No candidates have applied to this room yet.</p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

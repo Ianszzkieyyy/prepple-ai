@@ -20,6 +20,14 @@ export async function POST(req: Request) {
         }
 
         const report = await generateReport(roomId, candidateId, parsedResume, sessionHistory, usageMetrics);
+        const { data: reportTypeData, error: reportTypeError } = await supabase
+            .from('rooms')
+            .select('interview_type')
+            .eq('id', roomId)
+            .single();
+        if (reportTypeError) {
+            throw new Error('Error fetching room interview type');
+        }
 
         const { data: savedReport, error: saveError } = await supabase
               .from('ai_reports')
@@ -32,6 +40,7 @@ export async function POST(req: Request) {
                 areas_for_improvement: report.areas_for_improvement,
                 interview_score: report.interview_score,
                 custom_parameters_result: report.custom_parameters_result,
+                report_type: reportTypeData.interview_type === 'custom' ? "custom" : "interview"
               })
               .select('id')
               .single();
