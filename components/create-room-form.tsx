@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -96,6 +97,8 @@ export function CreateRoomForm({
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const router = useRouter();
+
   const resetForm = () => {
     setTitle("");
     setJobPosting("");
@@ -104,6 +107,7 @@ export function CreateRoomForm({
     setStartDate(undefined);
     setEndDate(undefined);
     setAiInstructions("");
+    setCustomParameters([]);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -173,6 +177,7 @@ export function CreateRoomForm({
     }
 
     setIsSubmitting(false);
+    router.push("/admin/rooms");
   };
 
   return (
@@ -376,7 +381,11 @@ export function CreateRoomForm({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-6" onSubmit={handleSubmit}>
+              <form className="space-y-6" onSubmit={(e) => {
+                e.preventDefault();
+                setInterviewType("custom");
+                handleSubmit(e);
+              }}>
                 <div className="space-y-2">
                   <Label htmlFor="room-title">Room title</Label>
                   <Input
