@@ -1,12 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { RoomType } from "@/lib/types"
 
-type Kind = "count" | "dashboard" | "all" | "recent" | "active";
+type Kind = "count" | "dashboard" | "all" | "recent" | "active" | "single";
 
 async function getRoomsData(id: string, kind: "count"): Promise<number | null>
 async function getRoomsData(id: string, kind: "dashboard"): Promise<RoomType[] | null>
 async function getRoomsData(id: string, kind: "recent"): Promise<RoomType[] | null>
 async function getRoomsData(id: string, kind?: "all"): Promise<any[] | null>
+async function getRoomsData(id: string, kind: "single"): Promise<RoomType | null>
 
 async function getRoomsData(id: string, kind?: Kind) {
     const supabase = await createClient();
@@ -48,6 +49,19 @@ async function getRoomsData(id: string, kind?: Kind) {
       }
 
       return recentRooms;
+    }
+
+    if (kind === "single") {
+      const { data: room, error: roomsError } = await supabase
+          .from('rooms')
+          .select('*')
+          .eq('id', id)
+          .single();
+      if (roomsError) {
+        console.error('Error fetching room:', roomsError);
+      }
+
+      return room;
     }
 
     // Default to fetching all rooms

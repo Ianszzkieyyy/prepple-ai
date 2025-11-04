@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import React, { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -31,6 +32,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { RoomType } from "@/lib/types";
 
 const roomSchema = z
   .object({
@@ -65,24 +67,32 @@ const roomSchema = z
 
 type RoomFormValues = z.infer<typeof roomSchema>;
 
-export function CreateRoomForm({
+interface EditRoomFormProps extends React.ComponentPropsWithoutRef<"div"> {
+    roomData: RoomType,
+}
+
+export function EditRoomForm({
   className,
+  roomData,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
-  const [title, setTitle] = useState("");
-  const [jobPosting, setJobPosting] = useState("");
-  const [interviewType, setInterviewType] =
-    useState<RoomFormValues["interviewType"] | "">("");
-  const [idealLength, setIdealLength] = useState<number>(4);
-  const [startDate, setStartDate] = useState<Date | undefined>();
-  const [endDate, setEndDate] = useState<Date | undefined>();
-  const [aiInstructions, setAiInstructions] = useState("");
+}: EditRoomFormProps) {
+  const [title, setTitle] = useState(roomData.room_title);
+  const [jobPosting, setJobPosting] = useState(roomData.job_posting);
+  const [interviewType, setInterviewType] = useState<
+    RoomFormValues["interviewType"] | ""
+  >(roomData.interview_type as RoomFormValues["interviewType"]);
+  const [idealLength, setIdealLength] = useState<number>(roomData.ideal_length || 4);
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date(roomData.start_date || ""));
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date(roomData.end_date || ""));
+  const [aiInstructions, setAiInstructions] = useState(roomData.ai_instruction || "");
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<keyof RoomFormValues, string>>
   >({});
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const router = useRouter();
 
   const resetForm = () => {
     setTitle("");
@@ -134,7 +144,7 @@ export function CreateRoomForm({
       return;
     }
 
-    const { error } = await supabase.from("rooms").insert({
+    const { error } = await supabase.from("rooms").update({
       hr_id: user.id,
       room_title: validation.data.title,
       job_posting: validation.data.jobPosting,
@@ -142,18 +152,18 @@ export function CreateRoomForm({
       start_date: format(validation.data.startDate, "yyyy-MM-dd"),
       end_date: format(validation.data.endDate, "yyyy-MM-dd"),
       ideal_length: validation.data.idealLength,
-      room_code: generateRoomCode(),
+      room_code: roomData.room_code,
       ai_instruction:
         validation.data.aiInstructions?.trim()
           ? validation.data.aiInstructions.trim()
           : null,
-    });
+    }).eq("id", roomData.id)
 
     if (error) {
       setFormError(error.message);
     } else {
-      setFormSuccess("Room created successfully.");
-      resetForm();
+      setFormSuccess("Room updated successfully.");
+      router.push(`admin/rooms/${roomData.id}`);
     }
 
     setIsSubmitting(false);
@@ -163,7 +173,7 @@ export function CreateRoomForm({
     <div className={className} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Create interview room</CardTitle>
+          <CardTitle>Edit interview room</CardTitle>
           <CardDescription>
             Configure the session details for the AI interviewer.
           </CardDescription>
@@ -201,7 +211,7 @@ export function CreateRoomForm({
                 ) : (
                   <span />
                 )}
-                <span>{jobPosting.length}/3000</span>
+                <span>{jobPosting?.length}/3000</span>
               </div>
             </div>
 
@@ -338,7 +348,7 @@ export function CreateRoomForm({
             )}
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Creating room..." : "Create room"}
+              {isSubmitting ? "Updating room..." : "Update room"}
             </Button>
           </form>
         </CardContent>
@@ -347,6 +357,3 @@ export function CreateRoomForm({
   );
 }
 
-function generateRoomCode() {
-  return crypto.randomUUID().split("-")[0].toUpperCase();
-}

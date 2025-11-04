@@ -6,6 +6,9 @@ interface RoomType {
     start_date?: string;
     end_date?: string;
     interview_type?: string;
+    job_posting?: string;
+    ai_instruction?: string;
+    ideal_length?: number;
     candidates?: [{ count: number }]; 
 }
 

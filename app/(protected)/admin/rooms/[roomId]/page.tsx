@@ -46,9 +46,9 @@ export default async function RoomDetails({ params }: { params: { roomId: string
             <BreadcrumbHeader items={[{ label: "Home", href: "/admin" }, { label: "Rooms", href: "/admin/rooms" }, { label: "Room Details", href: "#" }]} />
             <div className="flex flex-col px-32 py-8">
                 <div className="flex">
-                    <div className="flex-4">
+                    <div className="flex-4 flex flex-col justify-between items-stretch">
                         <h1 className="text-2xl font-semibold">{room?.room_title}</h1>
-                        <div className="flex mt-2">
+                        <div className="flex">
                             <Button asChild><Link href={`/admin/rooms/${room?.id}/edit`}>Edit Room</Link></Button>
                             <Button variant="outline" asChild className="ml-2"><Link href={`/admin/rooms/${room?.id}/details`}>View Details</Link></Button>
                         </div>
