@@ -113,7 +113,7 @@ export function JoinRoomForm({
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div>
-              <Label htmlFor="resume-file">Upload Resume (PDF preferred)</Label>
+              <Label htmlFor="resume-file">Upload Resume (PDF / DOC / DOCX)</Label>
               <Input
                 id="resume-file"
                 type="file"
@@ -126,7 +126,7 @@ export function JoinRoomForm({
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
               {isSubmitting ? "Joining..." : "Join Room"}
             </Button>
           </form>
