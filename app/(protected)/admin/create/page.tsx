@@ -5,7 +5,7 @@ export default async function CreateRoom() {
     return (
         <div className="w-full">
             <BreadcrumbHeader items={[{ label: "Home", href: "/admin" }, { label: "Create Room", href: "/admin/rooms/create" }]} />
-            <CreateRoomForm className="flex justify-center my-16"/>
+            <CreateRoomForm className="flex justify-center"/>
         </div>
     )
 }

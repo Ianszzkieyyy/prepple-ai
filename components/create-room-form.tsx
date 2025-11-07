@@ -181,13 +181,13 @@ export function CreateRoomForm({
   };
 
   return (
-    <Tabs defaultValue="interview">
-      <TabsList>
+    <Tabs className="py-8" defaultValue="interview">
+      <TabsList className="w-xl mx-auto mb-4 ">
         <TabsTrigger value="interview">Interview</TabsTrigger>
         <TabsTrigger value="custom">Custom</TabsTrigger>
       </TabsList>
       <TabsContent value="interview">
-        <div className={className} {...props}>
+        <div className={`${className} w-xl mx-auto`} {...props}>
           <Card>
             <CardHeader>
               <CardTitle>Create interview room</CardTitle>
@@ -372,7 +372,7 @@ export function CreateRoomForm({
         </div>
       </TabsContent>
       <TabsContent value="custom">
-        <div className={`${className} w-xl`} {...props}>
+        <div className={`${className} w-xl mx-auto`} {...props}>
           <Card>
             <CardHeader>
               <CardTitle>Create custom room</CardTitle>
