@@ -1,23 +1,25 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import LogoIcon from "@/public/logo-icon.svg"
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <header className="border-b bg-[#4c4646] text-white">
+      <header className="border-b text-white">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-            <span className="rounded-md bg-[#ee4d4d] px-3 py-1 text-base font-medium text-white">
-              Logo
-            </span>
+            <Image src={LogoIcon} alt="Logo" className="h-8 w-8" />
             Prepple AI
           </Link>
           <nav className="flex items-center gap-3 text-sm font-medium">
-            <Button asChild variant="ghost" className="text-white hover:bg-white/10">
+            <ThemeSwitcher />
+            <Button asChild variant="outline">
               <Link href="/auth/login">Log In</Link>
             </Button>
-            <Button asChild className="bg-[#ee4d4d] text-white hover:bg-[#ee4d4d]/90">
+            <Button asChild>
               <Link href="/auth/sign-up">Sign Up</Link>
             </Button>
           </nav>
@@ -82,7 +84,7 @@ export default function Home() {
             your roles and company voice.
           </p>
           <div className="h-52 w-full max-w-3xl rounded-3xl bg-muted sm:h-64" />
-          <Button asChild size="lg" className="bg-[#ee4d4d] text-white hover:bg-[#ee4d4d]/90">
+          <Button asChild size="lg" >
             <Link href="/auth/sign-up">Get Started</Link>
           </Button>
         </section>
@@ -90,7 +92,7 @@ export default function Home() {
 
       <footer className="border-t bg-muted/50">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-2 px-6 py-6 text-center text-xs text-muted-foreground">
-          <span className="rounded-md bg-muted px-3 py-1 text-[11px] font-medium text-foreground">Logo</span>
+          <Image src={LogoIcon} alt="Logo" className="h-4 w-4" />
           <p>Prepple AI. Developed by GENI Solutions.</p>
         </div>
       </footer>
