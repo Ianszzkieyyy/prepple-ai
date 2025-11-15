@@ -89,7 +89,7 @@ export default async function CandidatePage({ params }: { params: { candidateId:
 
     return (
         <div className="w-full">
-            <BreadcrumbHeader items={[{ label: "Home", href: "/admin" }, { label: "Candidates", href: "/admin/candidates" }, { label: "Candidate Details", href: `/admin/candidates/${candidateId}` }]} />
+            <BreadcrumbHeader items={[{ label: "Home", href: "/admin" }, { label: "Candidates", href: "/admin/list" }, { label: "Candidate Details", href: `/admin/candidates/${candidateId}` }]} />
             <div className="flex flex-col gap-4 px-32 py-8">
                 <div className="flex gap-16 justify-between items-center">
                     <div className="flex flex-col gap-2">

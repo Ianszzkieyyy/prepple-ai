@@ -4,7 +4,6 @@ import * as React from "react"
 import {
   LayoutDashboard,
   Shapes,
-  History,
   DiamondPlus,
   Users
 } from "lucide-react"
@@ -100,14 +99,6 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                   <Link href={"/admin/list"}>
                     <Users className="mr-2 h-4 w-4" />
                     <span>List</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem key={"Candidates Records"}>
-                <SidebarMenuButton className={pathname === "/admin/records" ? "bg-primary/50 text-primary-foreground hover:bg-primary/70 hover:text-primary-foreground transition-colors duration-100" : ""} asChild>
-                  <Link href={"/admin/records"}>
-                    <History className="mr-2 h-4 w-4" />
-                    <span>Records</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -165,9 +165,10 @@ export function SignUpForm({
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isLoading || signUpType === "asAdmin"}>
                 {isLoading ? "Creating an account..." : "Sign up"}
               </Button>
+              {signUpType === "asAdmin" && <p className="text-xs text-muted-foreground">Admin sign-ups are currently disabled. Please contact support for access.</p>}
             </div>
             <div className="mt-4 text-center text-sm">
               Already have an account?{" "}

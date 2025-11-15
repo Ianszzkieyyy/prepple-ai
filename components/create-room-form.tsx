@@ -49,7 +49,7 @@ const roomSchema = z
     idealLength: z
       .number()
       .min(3, "Minimum length is 3 minutes")
-      .max(5, "Maximum length is 5 minutes"),
+      .max(10, "Maximum length is 10 minutes"),
     startDate: z.date({ error: "Start date is required" }),
     endDate: z.date({ error: "End date is required" }),
     aiInstructions: z
@@ -83,7 +83,7 @@ export function CreateRoomForm({
   const [jobPosting, setJobPosting] = useState("");
   const [interviewType, setInterviewType] =
     useState<RoomFormValues["interviewType"] | "">("");
-  const [idealLength, setIdealLength] = useState<number>(4);
+  const [idealLength, setIdealLength] = useState<number>(5);
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [aiInstructions, setAiInstructions] = useState("");
@@ -103,7 +103,7 @@ export function CreateRoomForm({
     setTitle("");
     setJobPosting("");
     setInterviewType("");
-    setIdealLength(4);
+    setIdealLength(5);
     setStartDate(undefined);
     setEndDate(undefined);
     setAiInstructions("");
@@ -279,9 +279,9 @@ export function CreateRoomForm({
                   <Label>Ideal interview length: {idealLength} min</Label>
                   <Slider
                     value={[idealLength]}
-                    onValueChange={(value) => setIdealLength(value[0] ?? 4)}
+                    onValueChange={(value) => setIdealLength(value[0] ?? 5)}
                     min={3}
-                    max={5}
+                    max={10}
                     step={1}
                   />
                   {fieldErrors.idealLength && (
