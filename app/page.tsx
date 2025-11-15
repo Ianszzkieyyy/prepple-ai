@@ -17,7 +17,7 @@ export default function Home() {
           <nav className="flex items-center gap-3 text-sm font-medium">
             <ThemeSwitcher />
             <Button asChild variant="outline">
-              <Link href="/auth/login">Log In</Link>
+              <Link href="/auth/login" className="text-foreground">Log In</Link>
             </Button>
             <Button asChild>
               <Link href="/auth/sign-up">Sign Up</Link>
