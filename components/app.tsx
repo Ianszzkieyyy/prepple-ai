@@ -31,6 +31,10 @@ export function App({ appConfig, roomId, candidateId }: AppProps) {
   useEffect(() => {
     const onDisconnected = () => {
       setSessionStarted(false);
+      toastAlert({
+        title: "Thank you for using PreppleAI!",
+        description: "Your interview will be reviewed shortly."
+      })
       router.push('/')
     };
     const onMediaDevicesError = (error: Error) => {
