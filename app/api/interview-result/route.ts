@@ -10,7 +10,17 @@ export async function POST(req: Request) {
     try {
         const apiKey = req.headers.get("x-api-key");
         if (apiKey !== AGENT_API_KEY) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return NextResponse.json(
+                { error: "Unauthorized" }, 
+                { 
+                    status: 401,
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+                    }
+                }
+            );
         }
         const body = await req.json()
         const { roomId, candidateId, sessionHistory, parsedResume, usageMetrics } = body
@@ -56,16 +66,46 @@ export async function POST(req: Request) {
             })
             .eq('id', candidateId);
 
-        return NextResponse.json({
-            message: 'Report generated and saved successfully',
-            reportId: savedReport.id,
-        });
+        return NextResponse.json(
+            {
+                message: 'Report generated and saved successfully',
+                reportId: savedReport.id,
+            },
+            {
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+                }
+            }
+        );
 
 
     } catch (error) {
         console.error('Error processing interview result:', error)
         const message = error instanceof Error ? error.message : 'An unknown error occurred'
-        return NextResponse.json({ error: message }, { status: 500 })
+        return NextResponse.json(
+            { error: message }, 
+            { 
+                status: 500, 
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                }
+            }
+        )
     }
+}
 
+
+export async function OPTIONS(req: Request) {
+    return NextResponse.json(
+        {},
+        {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+            }
+        }
+    );
 }
