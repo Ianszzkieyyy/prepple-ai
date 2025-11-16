@@ -33,9 +33,11 @@ export function App({ appConfig, roomId, candidateId }: AppProps) {
       setSessionStarted(false);
       toastAlert({
         title: "Thank you for using PreppleAI!",
-        description: "Your interview will be reviewed shortly."
+        description: "Your interview will be reviewed shortly.",
       })
-      router.push('/')
+      setTimeout(() => {
+        router.push('/client')
+      }, 3500);
     };
     const onMediaDevicesError = (error: Error) => {
       toastAlert({
