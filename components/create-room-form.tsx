@@ -536,9 +536,9 @@ export function CreateRoomForm({
                   <Label>Ideal interview length: {idealLength} min</Label>
                   <Slider
                     value={[idealLength]}
-                    onValueChange={(value) => setIdealLength(value[0] ?? 4)}
+                    onValueChange={(value) => setIdealLength(value[0] ?? 5)}
                     min={3}
-                    max={5}
+                    max={10}
                     step={1}
                   />
                   {fieldErrors.idealLength && (

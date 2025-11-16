@@ -8,9 +8,9 @@ export default async function getCandidatesData(id: string, kind?: Kind) {
     if (kind === "dashboard") {
         const { data: candidateData, error: candidatesError } = await supabase
             .from('candidates')
-            .select('created_at, applied_room, rooms:applied_room(id, hr_id), users(name, email)')
+            .select('created_at, applied_room, rooms!applied_room!inner(id, hr_id), users:user_id(name, email)')
             .eq('rooms.hr_id', id)
-            .order('created_at', { ascending: true });
+            .order('created_at', { ascending: false });
         if (candidatesError) {
             console.error('Error fetching candidates:', candidatesError);
         }
@@ -71,7 +71,7 @@ export default async function getCandidatesData(id: string, kind?: Kind) {
     // Default to fetching all candidates
     const { data: allCandidates, error: candidatesError } = await supabase
         .from('candidates')
-        .select('*, rooms:applied_room(id, hr_id), users(name, email)')
+        .select('*, rooms!applied_room!inner(id, hr_id), users:user_id(name, email)')
         .eq('rooms.hr_id', id);
     if (candidatesError) {
         console.error('Error fetching all candidates:', candidatesError);
