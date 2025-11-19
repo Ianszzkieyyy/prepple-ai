@@ -5,14 +5,16 @@ import Image from "next/image";
 import LogoIcon from "@/public/logo-icon.svg"
 import { ThemeSwitcher } from "@/components/theme-switcher";
 
+import HeroImage from "@/public/images/7.png";
+
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <header className="border-b text-white">
+      <nav className="border-b text-white sticky top-0 z-40 bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
             <Image src={LogoIcon} alt="Logo" className="h-8 w-8" />
-            Prepple AI
+            <span className="text-foreground">Prepple AI</span>
           </Link>
           <nav className="flex items-center gap-3 text-sm font-medium">
             <ThemeSwitcher />
@@ -24,7 +26,7 @@ export default function Home() {
             </Button>
           </nav>
         </div>
-      </header>
+      </nav>
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-24 px-6 py-16">
         <section className="flex flex-col items-center gap-6 text-center">
@@ -33,7 +35,9 @@ export default function Home() {
             Automate first-round interviews with an AI HR partner that screens candidates, scores
             performance, and delivers actionable insights to your hiring team.
           </p>
-          <div className="mt-4 h-64 w-full max-w-4xl rounded-3xl bg-muted sm:h-80 lg:h-96" />
+          <div className="mt-4 h-64 w-full max-w-4xl rounded-3xl shadow-2xl shadow-accent-foreground bg-muted sm:h-80 lg:h-96" >
+            <Image src={HeroImage} alt="Prepple AI demonstration" width={768} height={432} className="h-full w-full rounded-3xl object-cover"/>
+          </div>
         </section>
 
         <section id="features" className="flex flex-col gap-8">

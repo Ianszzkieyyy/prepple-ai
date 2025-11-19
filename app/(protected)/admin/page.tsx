@@ -13,6 +13,8 @@ import RoomCard from "@/components/room-card";
 import { Button } from "@/components/ui/button";
 import { RoomType } from "@/lib/types";
 
+const VERCEL_URL = process.env.VERCEL_URL || "http://localhost:3000";
+
 export default async function Home() {
   const supabase = await createClient();
 
@@ -113,7 +115,7 @@ export default async function Home() {
           <h1 className="text-2xl font-semibold">Rooms</h1>
           <div className="flex justify-between items-center gap-4">
             <div className="flex gap-4">
-              <Button asChild><Link href="/admin/rooms/create">Create Room</Link></Button>
+              <Button asChild><Link href={`${VERCEL_URL}/admin/create`}>Create Room</Link></Button>
               <Button asChild variant={"outline"}><Link href="/admin/rooms">View All Rooms</Link></Button>
             </div>
             <Select>
