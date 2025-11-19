@@ -6,6 +6,11 @@ import LogoIcon from "@/public/logo-icon.svg"
 import { ThemeSwitcher } from "@/components/theme-switcher";
 
 import HeroImage from "@/public/images/7.png";
+import SectionImage1 from "@/public/images/5.png";
+import SectionImage2 from "@/public/images/4.png";
+import SectionImage3 from "@/public/images/2.png";
+import AboutUs from "@/public/images/6.png";
+import GetStarted from "@/public/images/1.png";
 
 export default function Home() {
   return (
@@ -43,22 +48,28 @@ export default function Home() {
         <section id="features" className="flex flex-col gap-8">
           <h2 className="text-center text-2xl font-semibold tracking-tight">Built for modern HR teams</h2>
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="flex flex-col gap-4 rounded-3xl bg-muted/60 p-8">
-              <div className="h-32 rounded-2xl bg-muted" />
+            <div className="flex flex-col gap-4 rounded-3xl border-2 border-border shadow-md p-8">
+              <div className="h-32 rounded-2xl bg-muted">
+                <Image src={SectionImage1} alt="AI-Led Screening" className="h-full w-full rounded-2xl object-cover"/> 
+              </div>
               <h3 className="text-xl font-semibold">AI-Led Screening</h3>
               <p className="text-sm text-muted-foreground">
                 Launch autonomous interview rooms that qualify applicants before your team steps in.
               </p>
             </div>
-            <div className="flex flex-col gap-4 rounded-3xl bg-muted/60 p-8">
-              <div className="h-32 rounded-2xl bg-muted" />
+            <div className="flex flex-col gap-4 rounded-3xl border-2 border-border shadow-md p-8">
+              <div className="h-32 rounded-2xl bg-muted">
+                <Image src={SectionImage2} alt="In-Depth Analysis" className="h-full w-full rounded-2xl object-cover"/>
+              </div>
               <h3 className="text-xl font-semibold">Actionable Reports</h3>
               <p className="text-sm text-muted-foreground">
                 Receive summaries with tone analysis, performance metrics, and recommended next steps.
               </p>
             </div>
-            <div className="flex flex-col gap-4 rounded-3xl bg-muted/60 p-8">
-              <div className="h-32 rounded-2xl bg-muted" />
+            <div className="flex flex-col gap-4 rounded-3xl border-2 border-border shadow-md p-8">
+              <div className="h-32 rounded-2xl bg-muted">
+                <Image src={SectionImage3} alt="Candidate Experience" className="h-full w-full rounded-2xl object-cover"/>
+              </div>
               <h3 className="text-xl font-semibold">Candidate Experience</h3>
               <p className="text-sm text-muted-foreground">
                 Offer jobseekers personalized feedback and preparation tools that keep them engaged.
@@ -67,14 +78,16 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="about" className="rounded-3xl bg-muted/60 p-10">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center">
-            <div className="h-32 w-full rounded-2xl bg-muted md:h-40 md:w-40" />
+        <section id="about" className="rounded-3xl w-3xl mx-auto bg-muted/60 p-10">
+          <div className="flex flex-col gap-16 md:flex-row md:items-center">
+            <div className="h-32 w-full rounded-2xl md:h-40 md:w-40">
+              <Image src={LogoIcon} alt="About Us" className="h-full w-full rounded-2xl object-fit"/>
+            </div>
             <div className="flex-1 space-y-4">
               <h2 className="text-2xl font-semibold tracking-tight">About Us</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground text-justify">
                 Prepple AI is built for teams balancing high-volume hiring with candidate care. We combine
-                real-time voice interviews, Gemini-powered analysis, and Supabase-driven workflows so you can
+                real-time voice interviews, AI-powered analysis, and secure workflows so you can
                 focus on conversations that matter most.
               </p>
             </div>
@@ -87,7 +100,9 @@ export default function Home() {
             Create your first Prepple Room in minutes and start screening with AI-backed insights tailored to
             your roles and company voice.
           </p>
-          <div className="h-52 w-full max-w-3xl rounded-3xl bg-muted sm:h-64" />
+          <div className="w-full max-w-3xl h-64 rounded-3xl bg-muted sm:h-90 shadow-xl shadow-accent-foreground/50 mb-4">
+            <Image src={GetStarted} alt="Get Started with Prepple AI" width={512} height={256} className="h-full w-full rounded-3xl object-contain"/> 
+          </div>
           <Button asChild size="lg" >
             <Link href="/auth/sign-up">Get Started</Link>
           </Button>
