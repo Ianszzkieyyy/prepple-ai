@@ -69,6 +69,11 @@ export function SignUpForm({
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (signUpType === "asAdmin") {
+      setError("Admin sign-ups are currently disabled. Please contact support for access.");
+      return;
+    }
     setIsLoading(true);
     setError(null);
 
